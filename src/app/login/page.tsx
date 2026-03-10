@@ -38,14 +38,8 @@ export default function LoginPage() {
 
                 if (error) throw error;
 
-                // Si el usuario ya existe, Supabase devuelve datos pero no crea identidad nueva
-                if (data?.user?.identities?.length === 0) {
-                    setErrorMessage("Este correo ya está registrado. Intenta iniciar sesión.");
-                    setStatus("error");
-                    return;
-                }
-
-                setStatus("sent");
+                // Si el registro es exitoso y no requiere confirmación, lo enviamos al chat
+                window.location.href = "/chat";
             }
         } catch (err: any) {
             setErrorMessage(err.message || "Algo salió mal. Intenta de nuevo.");
@@ -74,107 +68,83 @@ export default function LoginPage() {
 
                 <div className="bg-surface-container border border-outline/10 p-8 rounded-[32px] shadow-sm backdrop-blur-xl">
                     <AnimatePresence mode="wait">
-                        {status === "sent" ? (
-                            <motion.div
-                                key="success"
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="text-center py-6"
-                            >
-                                <div className="h-16 w-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                                    <Mail className="h-8 w-8 text-primary" />
-                                </div>
-                                <h3 className="text-xl font-bold text-on-surface">¡Revisa tu correo!</h3>
-                                <p className="text-on-surface-variant text-sm mt-3 leading-relaxed">
-                                    Hemos enviado un enlace de confirmación a <span className="text-primary font-bold">{email}</span>.
-                                    Haz clic en el enlace para activar tu cuenta.
-                                </p>
+                        <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                            <div className="flex p-1 bg-surface-variant/30 rounded-2xl mb-8">
                                 <button
-                                    onClick={() => setStatus("idle")}
-                                    className="mt-8 text-sm font-bold text-primary hover:underline"
+                                    onClick={() => setIsLogin(true)}
+                                    className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${isLogin ? "bg-primary text-on-primary shadow-md" : "text-on-surface-variant hover:text-on-surface"}`}
                                 >
-                                    Volver al inicio
+                                    Iniciar Sesión
                                 </button>
-                            </motion.div>
-                        ) : (
-                            <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                <div className="flex p-1 bg-surface-variant/30 rounded-2xl mb-8">
-                                    <button
-                                        onClick={() => setIsLogin(true)}
-                                        className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${isLogin ? "bg-primary text-on-primary shadow-md" : "text-on-surface-variant hover:text-on-surface"}`}
-                                    >
-                                        Iniciar Sesión
-                                    </button>
-                                    <button
-                                        onClick={() => setIsLogin(false)}
-                                        className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${!isLogin ? "bg-primary text-on-primary shadow-md" : "text-on-surface-variant hover:text-on-surface"}`}
-                                    >
-                                        Registrarse
-                                    </button>
+                                <button
+                                    onClick={() => setIsLogin(false)}
+                                    className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${!isLogin ? "bg-primary text-on-primary shadow-md" : "text-on-surface-variant hover:text-on-surface"}`}
+                                >
+                                    Registrarse
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleAuth} className="space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-2">Correo Electrónico</label>
+                                    <div className="relative group">
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-on-surface-variant group-focus-within:text-primary transition-colors" />
+                                        <input
+                                            type="email"
+                                            required
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="tu@correo.com"
+                                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-surface-variant/20 border border-outline/5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-variant/40 transition-all"
+                                        />
+                                    </div>
                                 </div>
 
-                                <form onSubmit={handleAuth} className="space-y-5">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-2">Correo Electrónico</label>
-                                        <div className="relative group">
-                                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-on-surface-variant group-focus-within:text-primary transition-colors" />
-                                            <input
-                                                type="email"
-                                                required
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                placeholder="tu@correo.com"
-                                                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-surface-variant/20 border border-outline/5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-variant/40 transition-all"
-                                            />
-                                        </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-2">Contraseña</label>
+                                    <div className="relative group">
+                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-on-surface-variant group-focus-within:text-primary transition-colors" />
+                                        <input
+                                            type="password"
+                                            required
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="••••••••"
+                                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-surface-variant/20 border border-outline/5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-variant/40 transition-all"
+                                        />
                                     </div>
+                                </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-2">Contraseña</label>
-                                        <div className="relative group">
-                                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-on-surface-variant group-focus-within:text-primary transition-colors" />
-                                            <input
-                                                type="password"
-                                                required
-                                                value={password}
-                                                onChange={(e) => setPassword(e.target.value)}
-                                                placeholder="••••••••"
-                                                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-surface-variant/20 border border-outline/5 text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-variant/40 transition-all"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {errorMessage && (
-                                        <motion.p
-                                            initial={{ opacity: 0, y: -10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            className="text-xs font-bold text-red-500 bg-red-500/10 p-3 rounded-xl text-center"
-                                        >
-                                            {errorMessage}
-                                        </motion.p>
-                                    )}
-
-                                    <button
-                                        type="submit"
-                                        disabled={status === "loading"}
-                                        className="w-full py-4 rounded-[20px] bg-gradient-to-r from-primary to-[#008B8B] text-on-primary font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 mt-4 flex items-center justify-center gap-2"
+                                {errorMessage && (
+                                    <motion.p
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="text-xs font-bold text-red-500 bg-red-500/10 p-3 rounded-xl text-center"
                                     >
-                                        {status === "loading" ? (
-                                            <div className="h-5 w-5 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
-                                        ) : (
-                                            <>
-                                                {isLogin ? "Entrar ahora" : "Crear mi cuenta"}
-                                                <ArrowRight className="h-5 w-5" />
-                                            </>
-                                        )}
-                                    </button>
-                                </form>
+                                        {errorMessage}
+                                    </motion.p>
+                                )}
 
-                                <p className="mt-8 text-center text-[11px] text-on-surface-variant/60 leading-relaxed font-medium">
-                                    Al continuar, aceptas que SentIA es una herramienta de apoyo emocional y no reemplaza el tratamiento profesional de salud mental.
-                                </p>
-                            </motion.div>
-                        )}
+                                <button
+                                    type="submit"
+                                    disabled={status === "loading"}
+                                    className="w-full py-4 rounded-[20px] bg-gradient-to-r from-primary to-[#008B8B] text-on-primary font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 mt-4 flex items-center justify-center gap-2"
+                                >
+                                    {status === "loading" ? (
+                                        <div className="h-5 w-5 border-2 border-on-primary border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <>
+                                            {isLogin ? "Entrar ahora" : "Crear mi cuenta"}
+                                            <ArrowRight className="h-5 w-5" />
+                                        </>
+                                    )}
+                                </button>
+                            </form>
+
+                            <p className="mt-8 text-center text-[11px] text-on-surface-variant/60 leading-relaxed font-medium">
+                                Al continuar, aceptas que SentIA es una herramienta de apoyo emocional y no reemplaza el tratamiento profesional de salud mental.
+                            </p>
+                        </motion.div>
                     </AnimatePresence>
                 </div>
 

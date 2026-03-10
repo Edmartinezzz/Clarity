@@ -448,11 +448,38 @@ export default function ChatPage() {
                                     });
 
                                     if (!response.ok) throw new Error();
-                                    const assistantText = await response.text();
 
-                                    const assistantMessage: ChatMessage = { id: crypto.randomUUID(), role: "assistant", content: assistantText, created_at: new Date().toISOString() };
-                                    const finalMessages = [...nextMessages, assistantMessage];
-                                    setMessages(finalMessages);
+                                    // Preparamos para recibir el stream
+                                    const reader = response.body?.getReader();
+                                    const decoder = new TextDecoder();
+                                    let assistantText = "";
+
+                                    // Creamos un ID para el mensaje del asistente
+                                    const assistantId = crypto.randomUUID();
+                                    setIsLoading(false); // Dejamos de mostrar el spinner para mostrar el texto que llega
+
+                                    if (reader) {
+                                        while (true) {
+                                            const { done, value } = await reader.read();
+                                            if (done) break;
+
+                                            const chunk = decoder.decode(value, { stream: true });
+                                            assistantText += chunk;
+
+                                            // Actualizamos el estado incrementalmente
+                                            setMessages(prev => {
+                                                const filtered = prev.filter(m => m.id !== assistantId);
+                                                return [...filtered, {
+                                                    id: assistantId,
+                                                    role: "assistant",
+                                                    content: assistantText,
+                                                    created_at: new Date().toISOString()
+                                                }];
+                                            });
+                                        }
+                                    }
+
+                                    const finalMessages = [...nextMessages, { id: assistantId, role: "assistant", content: assistantText, created_at: new Date().toISOString() }];
 
                                     if (userId) await supabase.from("messages").insert({ conversation_id: currentConvId, role: "assistant", content: assistantText });
 
@@ -476,7 +503,6 @@ export default function ChatPage() {
 
                                 } catch (err) {
                                     console.error(err);
-                                } finally {
                                     setIsLoading(false);
                                 }
                             }}

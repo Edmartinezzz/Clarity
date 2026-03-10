@@ -94,13 +94,28 @@ ${contextInfo}`;
       messages: ollamaMessages,
       temperature: 0.7,
       max_tokens: 1024,
+      stream: true,
     });
 
-    const content =
-      completion.choices[0]?.message?.content ??
-      "Lo siento, no pude generar una respuesta en este momento.";
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          for await (const chunk of completion) {
+            const content = chunk.choices[0]?.delta?.content || "";
+            if (content) {
+              controller.enqueue(encoder.encode(content));
+            }
+          }
+        } catch (err) {
+          controller.error(err);
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    return new Response(content, {
+    return new Response(stream, {
       status: 200,
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });

@@ -14,7 +14,7 @@ export default function Sidebar() {
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
-        router.push("/");
+        router.push("/login");
     };
     return (
         <div className="flex w-72 flex-col ml-4 my-4 p-6 bg-surface-container rounded-3xl shadow-sm border border-outline/10 hidden md:flex transition-all duration-500 overflow-hidden relative group/sidebar z-20">

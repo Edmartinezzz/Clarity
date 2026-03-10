@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "cap:build": "next build",
-    "cap:sync": "next build && npx cap sync"
+    "cap:build": "set IS_CAPACITOR_BUILD=true&& next build",
+    "cap:sync": "set IS_CAPACITOR_BUILD=true&& next build && npx cap sync"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.41",
@@ -17,6 +17,7 @@
     "@capacitor/cli": "^8.2.0",
     "@capacitor/core": "^8.2.0",
     "@capacitor/haptics": "^8.0.1",
+    "@capacitor/local-notifications": "^8.0.2",
     "@supabase/supabase-js": "^2.98.0",
     "@types/canvas-confetti": "^1.9.0",
     "ai": "^6.0.116",

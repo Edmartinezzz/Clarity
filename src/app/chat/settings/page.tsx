@@ -2,23 +2,42 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { SlidersHorizontal, Moon, SunMedium, HeartHandshake, Check } from "lucide-react";
+import { SlidersHorizontal, Moon, SunMedium, HeartHandshake, Check, Bell } from "lucide-react";
+import { notifications } from "@/lib/notifications";
 
 export default function SettingsPage() {
   const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
   const [briefResponses, setBriefResponses] = useState(true);
   const [actionFocus, setActionFocus] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   // Cargar preferencias
   useEffect(() => {
     const savedTheme = localStorage.getItem("SentIA_theme") as any;
     const savedBrief = localStorage.getItem("SentIA_brief_responses");
     const savedAction = localStorage.getItem("SentIA_action_focus");
+    const savedNotifs = localStorage.getItem("SentIA_notifications_enabled");
 
     if (savedTheme) setTheme(savedTheme);
     if (savedBrief) setBriefResponses(savedBrief === "true");
     if (savedAction) setActionFocus(savedAction === "true");
+    if (savedNotifs) setNotificationsEnabled(savedNotifs === "true");
   }, []);
+
+  const toggleNotifications = async (val: boolean) => {
+    if (val) {
+      const granted = await notifications.requestPermissions();
+      if (granted) {
+        await notifications.scheduleDailyReminder();
+        setNotificationsEnabled(true);
+        localStorage.setItem("SentIA_notifications_enabled", "true");
+      }
+    } else {
+      await notifications.cancelAll();
+      setNotificationsEnabled(false);
+      localStorage.setItem("SentIA_notifications_enabled", "false");
+    }
+  };
 
   // Aplicar tema
   useEffect(() => {
@@ -102,6 +121,23 @@ export default function SettingsPage() {
                   className="peer sr-only"
                   checked={actionFocus}
                   onChange={(e) => toggleAction(e.target.checked)}
+                />
+                <div className="peer h-7 w-12 rounded-full bg-outline/30 transition peer-checked:bg-primary" />
+                <span className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-all peer-checked:translate-x-5" />
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between gap-4 rounded-3xl bg-surface-container-high px-6 py-5 border border-outline/5">
+              <div className="flex flex-col">
+                <span className="text-[15px] font-bold text-on-surface">Recordatorio diario</span>
+                <span className="text-[11px] text-on-surface-variant font-medium">Recibe un mensaje a las 8:00 PM</span>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  className="peer sr-only"
+                  checked={notificationsEnabled}
+                  onChange={(e) => toggleNotifications(e.target.checked)}
                 />
                 <div className="peer h-7 w-12 rounded-full bg-outline/30 transition peer-checked:bg-primary" />
                 <span className="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-all peer-checked:translate-x-5" />

@@ -12,7 +12,7 @@ export default function ChatLayout({
             <ClientLiquidBackground />
             <Sidebar />
 
-            <main className="flex-1 flex flex-col relative w-full h-full p-2 pb-[80px] md:pb-4 md:p-4">
+            <main className="flex-1 flex flex-col relative w-full h-full p-2 pb-[100px] md:pb-4 md:p-4">
                 <div className="flex-1 overflow-y-auto">
                     {children}
                 </div>

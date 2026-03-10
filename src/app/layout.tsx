@@ -13,9 +13,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clarity · Asistente de bienestar emocional",
+  title: "Clarity | Asistente de Bienestar Emocional con Inteligencia Artificial",
   description:
-    "Clarity es un asistente de bienestar emocional impulsado por inteligencia artificial que te ayuda a reflexionar, comprender tus emociones y crear pequeños planes de mejora.",
+    "Clarity es tu asistente personal de bienestar emocional impulsado por IA. Comprende tus emociones, registra tu diario, cumple misiones diarias y obtén planes de mejora basados en terapia cognitivo-conductual.",
+  keywords: ["bienestar", "emocional", "IA", "salud mental", "diario", "psicología", "Clarity"],
+  authors: [{ name: "Carlos Martinez" }],
+  creator: "Carlos Martinez",
+  openGraph: {
+    title: "Clarity | Tu Asistente de Bienestar Mental",
+    description: "Reflexiona, entiende tus emociones y mejora tu calidad de vida interactuando con Clarity, impulsado por IA.",
+    url: "https://clarity-app-orpin.vercel.app", // Reemplazaremos con dominio final si hay
+    siteName: "Clarity AI",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Clarity | Asistente de Bienestar",
+    description: "Tu espacio seguro para la salud mental diaria.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  }
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";

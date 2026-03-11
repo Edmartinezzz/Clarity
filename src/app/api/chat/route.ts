@@ -13,6 +13,12 @@ type IncomingSettings = {
   actionFocus?: boolean;
 };
 
+type ChatRequest = {
+  messages?: IncomingMessage[];
+  userName?: string | null;
+  settings?: IncomingSettings;
+};
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
